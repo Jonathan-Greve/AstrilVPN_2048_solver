@@ -7,6 +7,7 @@ import time
 import random
 import copy
 
+
 class Engine:
 
     def __init__(self):
@@ -14,7 +15,7 @@ class Engine:
         self.board = [[0 for i in range(self.size)] for i in range(self.size)]
         self.score = 0
         self.numMoves = 0
-        self.moveList = ['down','left','up','right']
+        self.moveList = ['down', 'left', 'up', 'right']
         self.addRandBlock()
         self.addRandBlock()
 
@@ -22,7 +23,7 @@ class Engine:
         boardList = list(map(int, boardString.split(' ')))
         if len(boardList) != 16:
             raise ValueError("Invalid board string. It must contain 16 space-separated integers.")
-        self.board = [boardList[i:i+self.size] for i in range(0, len(boardList), self.size)]
+        self.board = [boardList[i:i + self.size] for i in range(0, len(boardList), self.size)]
         self.score = 0
         self.numMoves = 0
 
@@ -54,24 +55,22 @@ class Engine:
         """
         Rotate the board in order to make moves in different directions
         """
+        # Initialize rotated as a copy of the original board
+        rotated = [row[:] for row in board]
         for c in range(count):
+            # Now rotated gets overwritten here if count > 0
             rotated = [[0 for i in range(self.size)] for i in range(self.size)]
-
             for row in range(self.size):
                 for col in range(self.size):
                     rotated[self.size - col - 1][row] = board[row][col]
-
             board = rotated
 
         return rotated
 
     def makeMove(self, moveDir):
-        """
-        Shift the board to make the given move
-        """
         # Check if the game is already over
         if self.gameOver():
-            pass
+            return False
 
         board = self.board
 
@@ -83,58 +82,59 @@ class Engine:
         if rotateCount:
             board = self.rotateBoard(board, rotateCount)
 
-        #make an array to track merged tiles
+        # make an array to track merged tiles
         merged = [[0 for i in range(self.size)] for i in range(self.size)]
-
 
         for row in range(self.size - 1):
             for col in range(self.size):
 
                 currentTile = board[row][col]
-                nextTile = board[row+1][col]
+                nextTile = board[row + 1][col]
 
-                #go to next tile if current tile is empty
+                # go to next tile if current tile is empty
                 if not currentTile:
                     continue
 
-                #if next position is empty, move all tiles down
+                # if next position is empty, move all tiles down
                 if not nextTile:
-                    for x in range(row+1):
-                        board[row-x+1][col] = board[row-x][col]
+                    for x in range(row + 1):
+                        board[row - x + 1][col] = board[row - x][col]
                     board[0][col] = 0
                     moved = True
                     continue
-                #if tile was merged already, go to next tile
+                # if tile was merged already, go to next tile
                 if merged[row][col]:
                     continue
 
                 if currentTile == nextTile:
-                    #if three consecutive tiles of same value, dont merge first two
-                    if (row < self.size - 2 and nextTile == board[row+2][col]):
+                    # if three consecutive tiles of same value, dont merge first two
+                    if (row < self.size - 2 and nextTile == board[row + 2][col]):
                         continue
 
-                    #merge tiles and set new value, shift all other tiles down
-                    board[row+1][col] *= 2
+                    # merge tiles and set new value, shift all other tiles down
+                    board[row + 1][col] *= 2
                     for x in range(row):
-                        board[row-x][col] = board[row-x-1][col]
+                        board[row - x][col] = board[row - x - 1][col]
                     board[0][col] = 0
 
-                    #mark tile as merged and add appropriate score
-                    merged[row+1][col] = 1
+                    # mark tile as merged and add appropriate score
+                    merged[row + 1][col] = 1
                     self.score += self.scoreBonus(currentTile)
                     moved = True
 
-        #return board to original orientation
+        # return board to original orientation
         if rotateCount:
             board = self.rotateBoard(board, 4 - rotateCount)
 
         self.board = board
 
-        #if tiles were moved, increment number of moves and add a random block
+        # if tiles were moved, increment number of moves and add a random block
         if moved:
             self.numMoves += 1
             self.addRandBlock()
-
+            return True
+        else:
+            return False
 
     def addRandBlock(self, val=None):
         """
@@ -147,11 +147,10 @@ class Engine:
         if avail:
             (row, column) = avail[random.randint(0, len(avail) - 1)]
 
-            if random.randint(0,9) == 9:
+            if random.randint(0, 9) == 9:
                 self.board[row][column] = 4
             else:
                 self.board[row][column] = 2
-
 
     def availableSpots(self):
         """
@@ -171,13 +170,34 @@ class Engine:
         if self.availableSpots():
             return False
 
-        board = self.board
-        for row in range(self.size):
-            for col in range(self.size):
-                if (row < self.size - 1 and board[row][col] == board[row+1][col]) \
-                or (col < self.size - 1 and board[row][col] == board[row][col+1]):
-                    return False
+        for move in self.moveList:
+            board = self.rotateBoard(copy.deepcopy(self.board), self.moveList.index(move))
+
+            for row in range(self.size - 1):
+                for col in range(self.size):
+
+                    currentTile = board[row][col]
+                    nextTile = board[row + 1][col]
+
+                    # go to next tile if current tile is empty
+                    if not currentTile:
+                        continue
+
+                    # if next position is empty, we can move
+                    if not nextTile:
+                        return False
+
+                    if currentTile == nextTile:
+                        # if three consecutive tiles of same value, dont merge first two
+                        if (row < self.size - 2 and nextTile == board[row + 2][col]):
+                            continue
+
+                        # if current and next tile are same, we can merge, so return false
+                        return False
+
         return True
+
+
 
 def mcts_strategy(game, num_simulations):
     # Store the average score for each move
@@ -185,25 +205,59 @@ def mcts_strategy(game, num_simulations):
 
     for move in average_scores.keys():
         total_score = 0
+        num_valid_simulations = 0
         for _ in range(num_simulations):
             # Create a copy of the game
             game_copy = copy.deepcopy(game)
+
+            # Save the original board for comparison
+            original_board = copy.deepcopy(game_copy.board)
             game_copy.makeMove(move)
 
+            # Check if the move was valid (the board changed)
+            if original_board == game_copy.board:
+                continue
+
+            num_valid_simulations += 1
+
             # Continue making random moves until the game is over
+            num_moves = 0
             while not game_copy.gameOver():
-                random_move = random.choice(game_copy.moveList)
-                game_copy.makeMove(random_move)
+                # Use simple heuristics to guide random move selection
+                top_row = game_copy.board[0]
+                bottom_row = game_copy.board[-1]
+                left_col = [row[0] for row in game_copy.board]
+                right_col = [row[-1] for row in game_copy.board]
+
+                if all(top_val >= bottom_val for top_val, bottom_val in zip(top_row, bottom_row)) and all(
+                        left_val >= right_val for left_val, right_val in zip(left_col, right_col)):
+                    random_move = random.choice(['up', 'left'])
+                elif all(top_val >= bottom_val for top_val, bottom_val in zip(top_row, bottom_row)) and all(
+                        right_val >= left_val for right_val, left_val in zip(right_col, left_col)):
+                    random_move = random.choice(['up', 'right'])
+                elif all(bottom_val >= top_val for bottom_val, top_val in zip(bottom_row, top_row)) and all(
+                        left_val >= right_val for left_val, right_val in zip(left_col, right_col)):
+                    random_move = random.choice(['down', 'left'])
+                elif all(bottom_val >= top_val for bottom_val, top_val in zip(bottom_row, top_row)) and all(
+                        right_val >= left_val for right_val, left_val in zip(right_col, left_col)):
+                    random_move = random.choice(['down', 'right'])
+                else:
+                    random_move = random.choice(game_copy.moveList)
+
+                valid_move = game_copy.makeMove(random_move)
+                if not valid_move:
+                    break
 
             # Add the final score to the total
             total_score += game_copy.score
 
         # Calculate the average score for this move
-        average_scores[move] = total_score / num_simulations
+        average_scores[move] = total_score / num_valid_simulations if num_valid_simulations > 0 else 0
 
     # Choose the move with the highest average score
     best_move = max(average_scores, key=average_scores.get)
     return best_move
+
 
 # game = Engine()
 # while not game.gameOver():
@@ -211,6 +265,7 @@ def mcts_strategy(game, num_simulations):
 
 # Define possible moves
 MOVES = ['up', 'down', 'left', 'right']
+
 
 # Function to calculate score after a move
 def score_board(board, move):
@@ -263,6 +318,7 @@ def score_board(board, move):
 
     return np.sum(board_copy - board)
 
+
 # Function to decide the next move
 def decide_move(board):
     scores = {move: score_board(board, move) for move in MOVES}
@@ -275,11 +331,13 @@ def decide_move(board):
     best_move = max(valid_moves, key=valid_moves.get)
     return best_move
 
+
 # Function to convert space separated string into 4x4 numpy array and solve the game
 def solve_2048_game(input_string):
     input_list = list(map(int, input_string.split()))
     board = np.array(input_list).reshape(4, 4)
     return decide_move(board)
+
 
 def get_game_container(html):
     soup = BeautifulSoup(html, 'html.parser')
@@ -329,13 +387,21 @@ driver = webdriver.Chrome(service=service)
 driver.get("https://www.astrill.com/coupon-code")
 
 # Wait for page to load. Increase as necessary if load times are longer.
-time.sleep(5)
+time.sleep(1)
 
 game = Engine()
 while True:
     # Get the HTML of the page
-    time.sleep(0.5)
+    time.sleep(0.1)
     html = driver.page_source
+
+    game_over_elements = driver.find_elements("css selector", "div.game-message.game-over")
+
+    if game_over_elements:
+        # game is over, restart it
+        restart_button = driver.find_element("css selector", "a.restart-button")
+        restart_button.click()
+        time.sleep(1)
 
     # Parse the HTML and decide on the best move
     game_container_html = get_game_container(html)
@@ -343,10 +409,10 @@ while True:
     game.setBoard(board_state)
 
     # best_move = solve_2048_game(board_state)
-    best_move = mcts_strategy(game, 200)
+    best_move = mcts_strategy(game, 1000)
 
-    print (board_state)
-    print (best_move)
+    print(board_state)
+    print(best_move)
 
     # Make the move
     body = driver.find_element("tag name", 'body')
@@ -374,7 +440,3 @@ if game_container_html:
     print(solve_2048_game(board_state))
 else:
     print("No game-container found.")
-
-
-
-
