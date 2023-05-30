@@ -409,7 +409,7 @@ while True:
     game.setBoard(board_state)
 
     # best_move = solve_2048_game(board_state)
-    best_move = mcts_strategy(game, 1000)
+    best_move = mcts_strategy(game, 150)
 
     print(board_state)
     print(best_move)
@@ -429,14 +429,3 @@ while True:
 driver.quit()
 
 html = ''''''  # Your HTML string goes here
-
-# Extract the game-container div from the full HTML
-game_container_html = get_game_container(html)
-
-# Now pass the extracted game-container div to your existing get_board_state function
-if game_container_html:
-    board_state = get_board_state(game_container_html)
-    print(board_state)
-    print(solve_2048_game(board_state))
-else:
-    print("No game-container found.")
