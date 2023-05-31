@@ -385,6 +385,7 @@ service = Service(r'C:\Users\jonag\Downloads\chromedriver_win32')
 driver = webdriver.Chrome(service=service)
 
 driver.get("https://www.astrill.com/coupon-code")
+# driver.get("https://www.getastr.com/coupon-code") # Use if in China without a VPN
 
 # Wait for page to load. Increase as necessary if load times are longer.
 time.sleep(1)
@@ -409,7 +410,7 @@ while True:
     game.setBoard(board_state)
 
     # best_move = solve_2048_game(board_state)
-    best_move = mcts_strategy(game, 150)
+    best_move = mcts_strategy(game, 130)
 
     print(board_state)
     print(best_move)
