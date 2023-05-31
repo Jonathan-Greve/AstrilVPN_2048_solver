@@ -1,7 +1,6 @@
 import numpy as np
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 import time
 import random
@@ -198,7 +197,6 @@ class Engine:
         return True
 
 
-
 def mcts_strategy(game, num_simulations):
     # Store the average score for each move
     average_scores = {move: 0 for move in game.moveList}
@@ -381,11 +379,47 @@ def get_board_state(html):
     return ' '.join(board)
 
 
-service = Service(r'C:\Users\jonag\Downloads\chromedriver_win32')
-driver = webdriver.Chrome(service=service)
+# Prompt the user to choose the URL or enter a custom one.
+url_choice = input("""Please enter:
+1) For 'https://www.astrill.com/coupon-code'
+2) For 'https://www.getastr.com/coupon-code'
+3) To enter a custom URL: 
+""")
 
-driver.get("https://www.astrill.com/coupon-code")
-# driver.get("https://www.getastr.com/coupon-code") # Use if in China without a VPN
+# Validate the user's input and save the chosen URL.
+if url_choice == '1':
+    chosen_url = "https://www.astrill.com/coupon-code"
+elif url_choice == '2':
+    chosen_url = "https://www.getastr.com/coupon-code"
+elif url_choice == '3':
+    chosen_url = input("Please enter your custom URL: ")
+else:
+    print("Invalid choice! Please enter either '1', '2', or '3'.")
+    exit()
+
+# Prompt the user to choose the WebDriver.
+driver_choice = input("""Please choose the WebDriver to use (make sure the browser is installed):
+1) For 'Chrome'
+2) For 'Firefox'
+3) For 'Edge'
+4) For 'Safari'
+""")
+
+# Validate the user's input and create a WebDriver instance accordingly.
+if driver_choice == '1':
+    driver = webdriver.Chrome()
+elif driver_choice == '2':
+    driver = webdriver.Firefox()
+elif driver_choice == '3':
+    driver = webdriver.Edge()
+elif driver_choice == '4':
+    driver = webdriver.Safari()
+else:
+    print("Invalid choice! Please enter a number between '1' and '4'.")
+    exit()
+
+# Navigate to the chosen URL.
+driver.get(chosen_url)
 
 # Wait for page to load. Increase as necessary if load times are longer.
 time.sleep(1)
@@ -428,5 +462,3 @@ while True:
 
 # Close the WebDriver instance
 driver.quit()
-
-html = ''''''  # Your HTML string goes here
