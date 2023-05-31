@@ -28,51 +28,51 @@ Follow the instructions below to install the required Python libraries on your o
 
 Open Command Prompt and type:
 
-\`\`\`bash
+```
 pip install numpy beautifulsoup4 selenium webdriver_manager
-\`\`\`
+```
 
 ### Linux
 
 Open Terminal and type:
 
-\`\`\`bash
+```
 pip3 install numpy beautifulsoup4 selenium webdriver_manager
-\`\`\`
+```
 
 ### macOS
 
 Open Terminal and type:
 
-\`\`\`bash
+```
 pip3 install numpy beautifulsoup4 selenium webdriver_manager
-\`\`\`
+```
 
 ## How to Run
 
 Once all prerequisites are installed, you can clone the repository using the following command:
 
-\`\`\`bash
+```
 git clone https://github.com/yourusername/AstrilVPN_2048_solver.git
-\`\`\`
+```
 
 Navigate to the directory where the repository is cloned:
 
-\`\`\`bash
+```
 cd AstrilVPN_2048_solver
-\`\`\`
+```
 
 To run the script, use the following command:
 
-\`\`\`bash
+```
 python main.py
-\`\`\`
+```
 
 On Linux and macOS, you might need to use `python3` instead of `python`.
 
-\`\`\`bash
+```
 python3 main.py
-\`\`\`
+```
 
 Sit back and watch as the script solves the 2048 puzzle on the AstrilVPN website!
 
