@@ -8,6 +8,9 @@ The script utilizes a variety of powerful libraries, such as BeautifulSoup for H
 
 [AstrilVPN 2048 coupon code solver showcase - Youtube](https://www.youtube.com/watch?v=HIWml6H5FR4)
 
+And how it looks in the terminal:
+![Terminal output](example.png)
+
 ## Pre-requisites
 
 The script requires Python 3.6 or above installed on your system. The following Python libraries are also required:
