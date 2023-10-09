@@ -56,7 +56,7 @@ pip3 install numpy beautifulsoup4 selenium webdriver_manager
 Once all prerequisites are installed, you can clone the repository using the following command:
 
 ```
-git clone https://github.com/yourusername/AstrilVPN_2048_solver.git
+git clone https://github.com/Jonathan-Greve/AstrilVPN_2048_solver.git
 ```
 
 Navigate to the directory where the repository is cloned:
